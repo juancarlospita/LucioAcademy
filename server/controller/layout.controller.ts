@@ -133,11 +133,24 @@ export const editLayout = CatchAsyncError(
             };
           })
         );
-        // update
-        await LayoutModel.findByIdAndUpdate(FaqItems?._id, {
-          type: "FAQ",
-          faq: faqItems,
-        });
+
+        if (!FaqItems) {
+          // Si no existe, crear nuevo documento
+          await LayoutModel.create({
+            type: "FAQ",
+            faq: faqItems,
+          });
+        } else {
+          // Si existe, actualizar
+          await LayoutModel.findByIdAndUpdate(
+            FaqItems._id,
+            {
+              type: "FAQ",
+              faq: faqItems,
+            },
+            { new: true }
+          );
+        }
       }
       if (type === "Categories") {
         const { categories } = req.body;
