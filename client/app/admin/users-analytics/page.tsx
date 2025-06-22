@@ -5,6 +5,8 @@ import {Heading} from '../../utils/Heading';
 import DashboardHeader from '../../components/Admin/DashboardHeader';
 import UserAnalytics from '../../../app/components/Admin/Analytics/UserAnalytics';
 
+export const dynamic = 'force-dynamic';
+
 type Props = {}
 
 const page = (props: Props) => {

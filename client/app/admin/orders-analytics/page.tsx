@@ -5,6 +5,8 @@ import {Heading} from '../../../app/utils/Heading';
 import OrdersAnalytics from "../../components/Admin/Analytics/OrdersAnalytics";
 import DashboardHeader from '../../../app/components/Admin/DashboardHeader';
 
+export const dynamic = 'force-dynamic';
+
 type Props = {}
 
 const page = (props: Props) => {

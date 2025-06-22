@@ -4,7 +4,7 @@ import {
   useGetAllNotificationsQuery,
   useUpdateNotificationStatusMutation,
 } from "@/redux/features/notifications/notificationsApi";
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, useEffect, useState, useCallback } from "react";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import socketIO from "socket.io-client";
 import { format } from "timeago.js";
@@ -13,23 +13,30 @@ const socketId = socketIO(ENDPOINT, { transports: ["websocket"] });
 
 type Props = {
   open?: boolean;
-  setOpen?: any;
+  setOpen?: (open: boolean) => void;
 };
 
 const DashboardHeader: FC<Props> = ({ open, setOpen }) => {
+  const [orders, setOrders] = useState<any>([]);
   const { data, refetch } = useGetAllNotificationsQuery(undefined, {
     refetchOnMountOrArgChange: true,
   });
   const [updateNotificationStatus, { isSuccess }] =
     useUpdateNotificationStatusMutation();
   const [notifications, setNotifications] = useState<any>([]);
-  const [audio] = useState<any>(
-    new Audio("/client/app/components/Admin/Notification.mp3")
-  );
+  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
 
-  const playNotificationSound = () => {
-    audio.play();
-  };
+  useEffect(() => {
+    setAudio(new Audio("https://res.cloudinary.com/damk25wo5/video/upload/v1693465789/notification_shylza.mp3"));
+  }, []);
+
+  const [playNotificationSound] = useState(true);
+
+  const playSound = useCallback(() => {
+    if (audio) {
+      audio.play();
+    }
+  }, [audio]);
 
   useEffect(() => {
     if (data) {
@@ -37,18 +44,20 @@ const DashboardHeader: FC<Props> = ({ open, setOpen }) => {
         data.notifications.filter((item: any) => item.status === "unread")
       );
     }
-    if (isSuccess) {
+    if (isSuccess && audio) {
       refetch();
+      audio.load();
     }
-    audio.load();
-  }, [data, isSuccess, audio]);
+  }, [data, isSuccess, audio, refetch]);
 
   useEffect(() => {
     socketId.on("newNotification", (data) => {
       refetch();
-      playNotificationSound();
+      if (playNotificationSound) {
+        playSound();
+      }
     });
-  }, []);
+  }, [playNotificationSound, playSound]);
 
   const handleNotificationStatusChange = async (id: string) => {
     await updateNotificationStatus(id);
@@ -59,7 +68,7 @@ const DashboardHeader: FC<Props> = ({ open, setOpen }) => {
       <ThemeSwitcher />
       <div
         className="relative cursor-pointer m-2"
-        onClick={() => setOpen(!open)}
+        onClick={() => setOpen && setOpen(!open)}
       >
         <IoMdNotificationsOutline className="text-2xl cursor-pointer dark:text-white text-black" />
         <span className="absolute -top-2 -right-2 bg-[#3ccba0] rounded-full w-[20px] h-[20px] text-[12px] flex items-center justify-center text-white">
