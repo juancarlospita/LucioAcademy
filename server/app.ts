@@ -22,9 +22,14 @@ app.use(cookieParser());
 // cors =>
 app.use(
   cors({
-    // origin: process.env.ORIGIN,
-    origin:["http://localhost:3000"],
-    credentials:true
+    origin: [
+      "http://localhost:3000",
+      "https://www.lucioacademyfx.com",
+      "http://www.lucioacademyfx.com", 
+      "https://lucioacademyfx.com",
+      "http://lucioacademyfx.com"
+    ],
+    credentials: true
   })
 );
 
@@ -45,6 +50,7 @@ app.get("/test", (req: Request, res: Response, next: NextFunction) => {
     message: "API is working",
   });
 });
+
 // unknown route
 app.all("*", (req: Request, res: Response, next: NextFunction) => {
   const err = new Error(`Route ${req.originalUrl} not found`) as any;
